@@ -3,6 +3,10 @@ Thumbs.db
 db.json
 *.log
 *.json
+*.ico
+*.png
+*.jpg
+*.jpeg
 node_modules/
 public/
 .deploy*/
