@@ -16,7 +16,7 @@ updated: 2600-08-78
 ---
 
 
-# Tips of browser real-time autosync
+# 1. Tips of browser real-time autosync
 <!--- more --->
 
 terminal commond: npm install hexo-browsersync -\-save
@@ -29,16 +29,15 @@ With this plugin, after first time launching "hexo s", it should be able to auto
 
 --------------
 
-# Section title
+# 2. Section title
 To create section title, use "# title_name". Number of '#' is the sub-sectioin level. Maximum of '#' is 6. For example,
-# L1
 ## L2
 ### L3
-###### L6
+#### L4
 
 --------------
 
-# Quote
+# 3. Quote
 To quote, use '> line_to_quote' to quote. For example,
 > this is the line quoted  
 
@@ -48,24 +47,24 @@ quote can be nested by adding '>'
 
 --------------
 
-# Add image
+# 4. Add image
 To add image in markdown, use '![optional tag name](image path)' to add image.
 optional tag name: the name is used to display when image cannot be shown.
 image path: could be neither the local image path, e.g. /use/download/image.jpg, or url, e.g. www.abc.com/pic/image.jpg
 ![landscape](landscape.jpeg)
 
-### Tips in adding image in hexo
+## 4.1 Tips in adding image in hexo
 Changing 'post_asset_folder' to be true in _config.yml will create a folder with the same name as the post_name under _post folder when calling 'hexo new post_name' and the image can be put in this folder and referenced, e.g. _post/post_name/image.jpg
 
 --------------
 
-# Add url link
+# 5. Add url link
 To add link, use '[name to display](url)', e.g. "[GG]\(https://www.google.com)" gives
 [GG](https://www.google.com)
 
 --------------
 
-# italic and bold font
+# 6. italic and bold font
 __Text enclosed by two '*' or '_' is bold.__
 _Text enclosed by one '*' or \'\_\' is italic._  
 Here \'\*\' is the same as \'\_\', three \'\*\' is italic+bold
