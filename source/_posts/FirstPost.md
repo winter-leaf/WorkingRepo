@@ -17,6 +17,8 @@ updated: 2600-08-78
 
 
 # Tips of browser real-time autosync
+<!--- more --->
+
 terminal commond: npm install hexo-browsersync -\-save
 With this plugin, after first time launching "hexo s", it should be able to automatically sync the browser content with the newset update in *.md files. It will show something like this:
 > [Browsersync] Access URLs:

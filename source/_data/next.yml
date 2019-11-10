@@ -159,7 +159,7 @@ sidebar:
   #  - always  expand for all pages automatically.
   #  - hide    expand only when click on the sidebar toggle icon.
   #  - remove  totally remove sidebar including sidebar toggle.
-  display: post
+  display: hide
 
   # Sidebar offset from top menubar in pixels (only for Pisces | Gemini).
   offset: 12
@@ -415,7 +415,7 @@ github_banner:
 # ---------------------------------------------------------------
 
 font:
-  enable: false
+  enable: true
 
   # Uri of fonts host, e.g. //fonts.googleapis.com (Default).
   host:
@@ -434,19 +434,19 @@ font:
   # Font settings for site title (.site-title).
   title:
     external: true
-    family:
+    family: "Liu Jian Mao Cao"
     size:
 
   # Font settings for headlines (<h1> to <h6>).
   headings:
     external: true
-    family:
+    family: "Shadows Into Light" #"ZCOOL KuaiLe"
     size:
 
   # Font settings for posts (.post-body).
   posts:
     external: true
-    family:
+    family: "Yeon Sung"
 
   # Font settings for <code> and code blocks.
   codes:
