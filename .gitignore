@@ -9,6 +9,7 @@ db.json
 *.jpeg
 node_modules/
 public/
+source/_draft/
 .deploy*/
 themes/*
 !themes/landscape/
