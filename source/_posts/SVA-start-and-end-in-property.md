@@ -48,3 +48,26 @@ endproperty
  - 如果 **((##1 c)** 和 **(##2 !b))** 都没成功，那么以最终失败，即时间更长 **(##2 !b))** 为终点
 
 同理还有 ***and*** 操作符，可以检测同时成立的并行。
+
+以上操作在默认情况下都是起点同步，即并行执行同时开始。如果要想实现并行执行同步结束，则要借助sequence中的***ended***操作符。
+***ended***是sequence才有的操作符，表示sequence的结束事件，需要配合定义sequence使用。
+
+
+~~~verilog
+  sequence s1();
+    @(posedge clk) (a ##2 b);
+  endsequence
+  
+  sequence s2();
+    @(posedge clk) (b ##1 c);
+  endsequence
+  
+  property p();
+    @(posedge clk) 
+    s1.ended and s2.ended;
+  endproperty;
+  
+  a_p: assert property(p());
+~~~
+
+上面的property指定s1和s2的结束点同步，只有在s1和s2同时成功结束时才成功。
