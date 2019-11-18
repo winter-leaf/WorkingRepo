@@ -71,3 +71,86 @@ endproperty
 ~~~
 
 上面的property指定s1和s2的结束点同步，只有在s1和s2同时成功结束时才成功。
+
+除此之外，和起始、结束联系更紧密的是一系列match操作符。
+
+# 交集操作符intersect
+intersect并不是sequence的特有操作符，不定义sequence而用表达式也可以使用intersect。
+intersect顾名思义是交集，“***时间上的, 且成功了的***” 交集。换句话说，intersect连接的两个子表达式而形成的组合表达式想要成功，必须要两个子表达式在“同一时间段内，同时开始，同时结束，同时成功” 或者说 “首尾之间都成功”才算成功。
+
+
+~~~verilog
+  sequence a1b();
+    a ##1 b;
+  endsequence
+
+  sequence a2b();
+    a ##2 b;
+  endsequence
+
+  sequence a12b();
+    a ##[1:2] b;
+  endsequence
+
+  sequence c2d();
+    c ##2 d;
+  endsequence
+
+  sequence c3d();
+    c ##3 d;
+  endsequence
+
+  sequence c23d();
+    c ##[2:3] d;
+  endsequence
+
+  property p_a1b();
+    @(posedge clk) a1b;
+  endproperty
+
+  property p_a2b();
+    @(posedge clk) a2b;
+  endproperty
+
+  property p_a12b();
+    @(posedge clk) a12b;
+  endproperty
+
+  property p_c2d();
+    @(posedge clk) c2d;
+  endproperty
+
+  property p_c3d();
+    @(posedge clk) c3d;
+  endproperty
+
+  property p_c23d();
+    @(posedge clk) c23d;
+  endproperty
+
+  property p_s1s2();
+    @(posedge clk)
+    a12b intersect c23d;
+  endproperty
+
+  a_a1b:  assert property(p_a1b());
+  a_a2b:  assert property(p_a2b());
+  a_a12b: assert property(p_a12b());
+  a_c2d:  assert property(p_c2d());
+  a_c3d:  assert property(p_c3d());
+  a_c23d: assert property(p_c23d());
+  a_s1s2: assert property(p_s1s2());
+~~~  
+
+
+
+1. intersect失败 
+![failure](intersect_fail.png)
+
+property a12b 和 property c23d 没有满足“同一时间段内，同时开始，同时结束，同时成功”的条件，所以没有成功。
+
+
+2. intersect成功 
+![success](intersect_success.png)
+
+property a12b 和 property c23d 满足“同一时间段内，同时开始，同时结束，同时成功”的条件，所以成功。
