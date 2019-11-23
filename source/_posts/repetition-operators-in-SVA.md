@@ -144,3 +144,18 @@ SVA目前有三种重复操作符，分别是[*n], [->n]和[=n], n可以是0,1,2
 > (x ##1 x) or (x ##1 x ##1 x)
 
 
+# 5. first_match操作符
+first_match操作符经常配合上面的重复操作符使用，用于挑选出多个成功匹配中的第一个匹配。first_match只作用于sequence，而不能作用于表达式.
+
+~~~verilog
+  property p_a14b_first_match();
+    @(posedge clk)
+    (
+       a |-> first_match(a ##[1:4] b)
+    );
+  endproperty
+
+  a_fm_a14b: assert property(p_a14b_first_match());
+~~~
+
+![first_match](first_match.png)
