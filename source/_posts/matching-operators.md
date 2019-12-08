@@ -68,7 +68,7 @@ categories: SystemVerilog
 
 # 2. within
 within可以看做是throughout的广义版本，形式为(expression within sequence)。
-它的含义是在sequence成立的期间，expression至少有一次成立即可。如果检测成立，最终检测结束的时刻不是expression为真的时刻，而是ssequence检测成立的时刻。
+它的含义是在sequence成立的期间，expression至少有一次成立即可。如果检测成立，最终检测结束的时刻不是expression为真的时刻，而是sequence检测成立的时刻。
 具体例子，
 
 ~~~verilog
