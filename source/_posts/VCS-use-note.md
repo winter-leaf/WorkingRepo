@@ -20,9 +20,17 @@ VCS中，简单地类比，HDL源文件(*.vhd, *.v, *sv)经过analyze，elaborat
 # 1. Analyzing the Design
 VCS根据源HDL文件使用语言不同，提供两个analyze的指令***vhdlan*** 和 ***vlogan***。
 最终生成待连接文件，过程和c中的compile类似。如果是systemverilog，需要加上-sverilog选项。
+实际上，这个过程更多的是为后续的准备工作。这个过程会生成一个AN.DB的数据包，用于后续编译连接工作。
 
 # 2. Elaborating the Design
 VCS的连接过程叫做elaborate，指令比较单一，仅是 vcs [-options] filename. 最终会生成simv可执行文件。
+这个过程实际上比一般的连接工作要多一些。VCS本质上用的是C/C++来进行最终编译连接形成simv。那么对于HDL类型输入文件，
+VCS就会有一个从HDL到C的翻译过程。换句话说，VCS在elaborate过程做的是:
+1. 翻译HDL文件到C文件
+2. 将C文件编译形成二进制待连接文件
+3. 将二进制文件连接形成可执行文件simv  
+
+所以在VCS的elaborate过程会生成一个csrc文件夹，用以存放上述产生的这些文件。
 
 # 3. Simulating the Design
 这个过程仅是运行simv，没什么特别的。
