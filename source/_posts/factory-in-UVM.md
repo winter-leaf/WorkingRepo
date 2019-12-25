@@ -12,7 +12,7 @@ categories: SystemVerilog
 ---
 
 
-UVM的工厂机制是实现复用性的关键，这次稍微展开看一下它的实现过程。
+UVM的工厂机制是实现复用性的关键，这次稍微展开看一下它的实现内容。
 <!--- more --->
 
 # 1. factory
@@ -38,17 +38,20 @@ endfunction
 它声明了如下的存储变量:
 ~~~
 protected bit                     m_types[uvm_object_wrapper];
-protected bit                     m_lookup_strs[string]; // TODO
+protected bit                     m_lookup_strs[string];
 protected uvm_object_wrapper      m_type_names[string];
-protected m_inst_typename_alias_t m_inst_aliases[$];     // TODO
+protected m_inst_typename_alias_t m_inst_aliases[$];
 protected uvm_factory_override    m_type_overrides[$];
 protected uvm_factory_override    m_inst_overrides[$];
-local uvm_factory_override        m_override_info[$];    // TODO
+local uvm_factory_override        m_override_info[$];
 ~~~
 m_types里存放“uvm_object_wrapper-是否存在”的键值对。可根据uvm_object_wrapper察看其是否被注册。
 m_type_names里存放“类名-uvm_object_wrapper”的键值对。可根据类名获得相应的实例对象。
 m_type_overrides里存放通过set_type_override()进行覆写的信息，如原始类型、目的类型等。
 m_inst_overrides里存放通过set_inst_override()进行覆写的信息，如原始类型、目的类型等。
+m_lookup_strs是做调试用的，存放"类名-是否已被注册"的键值对，由于覆写函数中不要求原始类型必须被注册，对于那些没事先注册的类型，m_lookup_strs会对其置1。
+m_inst_aliases里存放的是被取过类型别名的路径实例的信息，诸如类型别名，原始类名，实例路径等，在set_inst_alias()函数中会被添加新队列成员。
+m_override_info是一个私有的辅助变量队列，在find_override_by_*()中使用，用于记录查找到的目的类型信息。
 
 
 下面是类成元函数:
@@ -66,9 +69,9 @@ virtual function uvm_object create_object_by_name(string requested_type_name, st
 virtual function uvm_component create_component_by_name (string requested_type_name, string parent_inst_path="", string name, uvm_component parent);
 virtual function bit is_type_name_registered(string type_name);
 virtual function bit is_type_registered(uvm_object_wrapper obj);
-virtual function uvm_object_wrapper find_wrapper_by_name(string type_name); // TODO
-virtual function uvm_object_wrapper find_override_by_type (uvm_object_wrapper requested_type, string full_inst_path);  // TODO
-virtual function uvm_object_wrapper find_override_by_name (string requested_type_name, string full_inst_path);  // TODO
+virtual function uvm_object_wrapper find_wrapper_by_name(string type_name); 
+virtual function uvm_object_wrapper find_override_by_type (uvm_object_wrapper requested_type, string full_inst_path); 
+virtual function uvm_object_wrapper find_override_by_name (string requested_type_name, string full_inst_path);
 virtual function void print (int all_types=1); // Prints the state of the uvm_factory, including registered types, instance overrides, and type overrides.
 
 // Only for debug use, same as create_*_by_* methods above but it shall generate more 
@@ -111,17 +114,41 @@ function bit m_matches_inst_override(uvm_factory_override override, uvm_object_w
   </tr>
 </table>
 
-回想上面提到的两个队列m_type_overrides和m_inst_overrides，这两个队列分别对应着两种覆写方式的覆写信息，这些信息最终会在得到实例对象时使用。
+回想上面提到的两个队列m_type_overrides和m_inst_overrides，这两个队列分别对应着两种覆写方式的覆写信息，这些信息最终会在得到实例对象时使用。原始类型不要求事先必须注册，但目的类型需要。
 
-*\_by\_name会从m_type_names中查找类型， *\_by\_type会从m_types中查找类型。
+*\_by\_name会从m_type_names中查找类型， *\_by\_type会从m_types中查找类型。对于通过实例路径覆写的方式，执行顺序上先覆写的有优先性。对于通过类型覆写的方式，执行顺序上后覆写的有优先性。路径覆写比类型覆写优先。
+
 举例来说，set_inst_override_by_name(.original_type_name("typeA"), .override_type_name("typeB"), .full_inst_path("instA_path"))，函数内部会先对"typeA"，"typeB"做一系列hashmap的存在性检查，接着从m_type_names里取出相应的类型，然后在m_inst_overrides中记录:实例路径"instA_path"，原始类型及类型名，目标类型及类型名等信息。
 
 ## set\_\*\_alias
 set_type_alias和set_inst_alias就是给相应的类型起一个别名。set_inst_alias会多要求一个实例的路径。
 
 ## create\_\*\_by\_*
-这些函数会先构建一个"parent_inst_path.name"的路径名，然后通过之前记录的m_type_overrides和m_inst_overrides信息来建立实例对象。通过实例路径覆写的有优先性。
+这些函数会先构建一个"parent_inst_path.name"的路径名，然后通过之前记录的m_type_overrides和m_inst_overrides信息来建立实例对象。。
 
 ## is\_type\_\*\_registered
 这些函数只是调用m_type_names.exists(type_name)，m_types.exists(type)来检查键值对是否存在。
 
+## find\_override\_by\_*
+这些函数，根据给定的输入目的类型和目的类型名，递归查找最终要被创建的实例对象的类型。有时一个原始类型可能会被多个目的类型覆写，那个最终起效果的类型会被找到。
+find_wrapper_by_name(string type_name)就是根据类名找到相应的实例。
+
+## m_resolve_type_name*
+这些函数和find_wrapper_by_name(string type_name)类似，用于找到相应的实例。
+
+## m_matches_type_pair
+形参match_type_pair是一个结构体，包含类型和类型名。此函数是检测对于给定的match_type_pair，在其不是空的情况下，其类型和类型名是否 与 requested_type及requested_type_name相同。
+
+## m_matches_*_override
+m_matches_type_override和m_matches_inst_override分别使用m_type_overrides，和m_inst_overrides队列。
+形参uvm_factory_override包含两个match_type_pair结构体，一个用于表示原始类型的信息，另一个用于表示目的类型的信息。
+m_matches\_\*\_override()函数会根据给定输入的形参，察看对应信息是否相同。函数内部执行大体分三步: 
+1. 获取待比较的match_type_pair结构体 
+2. 用m_resolve_type_name*()来为match_type_pair结构体中的类型赋值。
+3. 用m_matches_type_pair()进行比较。
+
+m_matches_type_override()比m_matches_inst_override()多出两个参数:
+* match_original_type
+用于选择是获取原始类型的match_type_pair结构体，还是目的类型的。
+* resolve_null_type_by_inst
+用于选择是用m_resolve_type_name_by_inst()来赋值match_type_pair中的类型，还是用m_resolve_type_name()。
