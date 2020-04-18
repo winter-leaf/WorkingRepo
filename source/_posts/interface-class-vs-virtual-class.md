@@ -105,9 +105,7 @@ interface class nonblocking_get_if#(type T=int);
 endclass
 
 // 接口类的多继承
-interface class get_if #(type T) extends 
-                              blocking_get_if #(T), 
-		  					  nonblocking_get_if #(T);
+interface class get_if#(type T) extends blocking_get_if #(T), nonblocking_get_if #(T);
 
 // put_if#(type T=int)
 interface class put_if#(type T=int);
@@ -115,7 +113,7 @@ interface class put_if#(type T=int);
 endclass
 
 // 实现类的多实现
-class my_port#(type T=int) implements get_if#(T), put_if#(type T=int);
+class my_port#(type T=int) implements get_if#(T), put_if#(T);
   //--------------------------------------
   // blocking_get_if interface methods ...
   //--------------------------------------
@@ -143,7 +141,6 @@ class my_port#(type T=int) implements get_if#(T), put_if#(type T=int);
     ...
   endtask
   
-
   //-----------------------------------------
   // other user defined methods ...
   //-----------------------------------------
@@ -163,12 +160,11 @@ endclass
 
 看一个例子,
 ~~~verilog
-virtual class my_class extends    base_class 
-                       implements interface_class;
+virtual class my_class extends base_class implements interface_class;
   ...
   ...
   ...
-endclass : bu_base_class
+endclass : my_class
 ~~~
 
 这里my_class在原有继承base_class的基础上又实现了interface_class，这相当于是把interface_class中定义的内容给"塞进"了my_class里，相当于打了一个补丁进去。继承机制的单一性是无法做到这一点的。
