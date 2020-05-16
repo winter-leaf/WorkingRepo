@@ -16,7 +16,7 @@ categories: summary
 <!--- more --->
 
 但不会细想里面到底发生了什么，而X的出现情况又是什么。最近察看了一些资料，把启发记录一下。
-这里写的启发和总结主要是参考一片文章, Stuart, "I'm Still In Love With My X", Design and Verification Conference, 2013.
+这里写的启发和总结主要是参考一片文章, [1]Stuart, "I'm Still In Love With My X", Design and Verification Conference, 2013.
 
 # 1. Data Type
 首先要说的是可能多数人会有的一个误区, verilog/systemverilog不只有数据类型，还有变量类型和端口类型。
@@ -151,17 +151,7 @@ EQUIVALENCE(<->)比较少用，表示双向推导，相当于 ((expr1 -> expr2) 
 对于未连接的端口信号，仿真模型会给于一个确定的指0或1进行仿真。但实硅上有可能与仿真时赋予的值不一样，导致模拟错误。
 
 
-### 3.1.5 indexing with X
-看下面一例子，
-~~~verilog
-logic [3:0] addr = 4'b000x;
-data = mem[addr];
-~~~
-data的值是什么？
-如果是x-optimistic的机制，由于地址索引中有x，仿真模型会认为没有索引成功，即没有赋值行为。
-这显然和实硅的情况不同，实硅上data肯定会有一个赋值。
-
-### 3.1.6 sensitivity edge
+### 3.1.5 sensitivity edge
 SV中，对变化沿采取x-optmism机制。
 0->1, 0->Z, Z->1, 0->X, X->1会被认为是posedge。
 1->0, 1->Z, Z->0,1->X, X->0会被认为是negedge。
@@ -176,3 +166,86 @@ end
 
 
 ## 3.2 X-pessimism
+x-pessimism机制会在X值导致仿真结果不确定的时候，把有关X的仿真结果一律看成X。这种机制不会像x-optimism那样在某些情况下通过强制赋值导致非真实模拟。
+但也会大大增加x的出现次数，可能导致x的泛滥，甚至将x值从产生的地方一路传的很深，从而使得调试更加困难。
+x-pessimism机制也会造成不必要的x添加。比如，x AND 0, 结果只可能是0, 包括实硅的情况。但x-pessimism机制会输出x。
+
+### 3.2.1 X lock-up
+x-pessimism会造成X值的死锁现象。当触发器的输出被x-pessimism机制赋值为x后，一旦输出x会将x值反馈给输入，则会出现从输入到输出的一个死循环，如下图。
+![x-lockup](x-lockup.png)
+
+由于输入侧的非门也采用x-pessimism机制，导致x的死锁。在实硅上，x会变成0或1, 不会出现死锁。
+这里x-pessimism机制会造成错误模拟。
+
+### 3.2.2 operators
+x-pessimistic的运算符有:
+* bitwise: INVERT(~), XOR(^), XNOR(~^)
+* unary: XOR(^), XNOR(~^)
+* logical: NOT(!)
+* arithmetic: +, -, *, / 等等
+* relational: <, >, <=, >= 等等
+* shift: <<, >>
+
+由于算数运算符是x-pessimistic，像下面这个例子，即使真实情况乘法结果为0, 但仿真模型还是会返回x，同时比较运算符也是x-pessimistic，造成比较结果也是x。
+~~~verilog
+logic [3:0] a = 4'b010x;
+
+b = a * 0;
+
+if(b > 1) begin
+  ...
+end
+~~~
+
+这里有一个技巧，由于XOR(^)是x-pessimistic，我们可以用来检测多位信号是否任意位是0, 如下:
+~~~verilog
+logic [3:0] a = 4'01x0;
+if(^a === 1'bx) begin
+  ...
+end
+~~~
+
+### 3.1.5 indexing with X
+看下面一例子，
+~~~verilog
+logic [3:0] addr = 4'b000x;
+data = mem[addr];
+~~~
+data的值是什么？
+如果是x-pessimistic的机制，由于地址索引中有x，仿真模型会认为没有索引成功，data的值会是x。
+这显然和实硅的情况不同，实硅上data肯定会有一个赋值。
+
+
+# 4. Why not only use 2-state data type?
+只用2态的数据类型确实会简化x的分析，但弊大于利。原因如下:
+1. 某些情况下，会无法反应设计问题，设计隐患会被隐藏。比如同一变量的多源驱动，x值可以反应问题，但用了2态类型，结果就不再是x，而是0或1，仿真的时候也不会报错。
+2. 初始化问题。如果用2态类型，那么未初始化的信号也会被仿真模型赋予一个确定的初始值。而这个值并不一定能反应实硅的真实情况。
+
+
+# 5. Current (maybe imperfect) solutions for X detection
+从上面的叙述来看，很难找到一个比较完美的方法来把所有的情况都能正确地模拟出来。
+一些EDA公司会提供一些针对于x值的仿真模型，比如synopsys的VCS x-prop。x-prop的机制是尽量在仿真模型中找一个optimistic和pessimistic的平衡。它会尽量在x值不确定时，去尝试各个x可能的取值分支，并把分支得到的临时结果记录下来，最终把所有临时结果整合在一起，得到最终结果。
+这里的整合方法一般有两种:
+1. T merge
+T merge会在各个输入不同，或各个输入中有x,z的时，返回x。如下:
+~~~python
+T_merge(a, b):
+  if(a != b or
+     a == 1'bx or a == 1'bz or
+	 b == 1'bx or b == 1'bz):
+    return x;
+~~~
+
+2. X merge
+X merge会在任意情况下返回x。如下:
+~~~python
+X_merge(a, b):
+  return x;
+~~~
+
+相比之下，T merge能更加正确地模拟实际情况。X merge更pessimistic，但X merge也有其作用，比如为了检测一个原则上不应该出现x的设计是否会出现x，就可以用X merge。
+
+
+# 6. A suggestion in article
+文章[1]中给出了一个建议，就是利用断言，在每个有局部信号输入的时候，都加上断言来检测输入是否为x。这样可以在第一时间在x的出现地报告x。同时断言还有一个好处，就是不会被综合，x的断言检测只会在仿真时作用。
+但一个潜在问题就是，这可能会导致这种断言重复写的到处都是，有大量重复性工作，且这种做法也取决于个人习惯。
