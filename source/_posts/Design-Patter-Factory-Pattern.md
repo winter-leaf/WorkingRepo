@@ -11,7 +11,7 @@ tags: Design Pattern
 categories: pattern
 ---
 
-Factory pattern的实质上就是一个实例对象产生器。这里的实力对象一般是指进行了多态的对象。
+Factory pattern的实质上就是一个实例对象产生器。这里的实例对象一般是指进行了多态的对象。
 <!--- more -->
 Factory pattern还有一个延展的形式，叫做abstract factory pattern，其本质就是factory的factory，factory本身也进行多态构造。
 
