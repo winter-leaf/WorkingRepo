@@ -23,10 +23,7 @@ C-PHY是MIPI协议在物理层的一个分支，其他的还有D-PHY和M-PHY，�
 # 1. C-PHY物理层长什么样？
 看下面这两张图
 ![cphy_inter_arch](cphy_inter_arch.png)
-
 ![cphy_inter_arch2](cphy_inter_arch2.png)
-
-
 从图上可以看出一组master与slave之间的C-PHY通道用的是三根导线。
 这样一个通道成为lane，导线称为line，一个lane总共有三根line，分为line A，B，C。信息就是在这三根导线上传递。
 一个C-PHY的发送侧(TX)和接收侧(RX)可以有多个master和slave，相应的也就会有多个lane。
@@ -92,7 +89,7 @@ symbol可以取的值是: 000, 001, 010, 011和1xx。由于xx是don’t care，C
 
 symbol的3位数据每一位都是有意义的。从左边到右依次为Flip(F), Rotation(R), Polarity(P)。
 要想明白这F，R，P是什么意思，我们先要祭出一个图。
-![cphy_ws_transitioin](cphy_ws_transition.png)
+![cphy_ws_transition](cphy_ws_transition.png)
 
 
 
@@ -112,7 +109,7 @@ symbol的3位数据每一位都是有意义的。从左边到右依次为Flip(F)
 * P 代表的是，绕圈的同时进行内外圈切换。
 
 把上图总结成表
-![cphy_ws_transitioin](cphy_ws_transition.png)
+![cphy_ws_dec](cphy_ws_dec.png)
 
 在A，B，C三根线上，我们只能看到WS，每个symbol的三位数值需要对先后观察到的WS来进行推断得到。
 
