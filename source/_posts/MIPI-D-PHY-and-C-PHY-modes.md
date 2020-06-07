@@ -16,7 +16,7 @@ categories: MIPI
 <!--- more --->
 
 # 1. C-PHY和D-PHY的总体工作过程
-    C- PHY和D-PHY，后续统称PHY，都是有不同的电平等级的物理层协议。从逻辑作用上看:
+C-PHY和D-PHY，后续统称PHY，都是有不同的电平等级的物理层协议。从逻辑作用上看:
 * 低电平用于数据传输，称作High-Speed(HS)模式
 * 高电平用于切换工作模式，称作Low-Power(LP)模式
 
