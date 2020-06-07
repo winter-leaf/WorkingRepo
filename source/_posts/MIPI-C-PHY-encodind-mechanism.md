@@ -7,8 +7,8 @@ mathjax: true
 date: 2020-06-06 16:51:47
 password:
 summary:
-tags:
-categories:
+tags: C-PHY
+categories: MIPI
 ---
 
 C-PHY是MIPI协议在物理层的一个分支，其他的还有D-PHY和M-PHY，各有各的特点。
