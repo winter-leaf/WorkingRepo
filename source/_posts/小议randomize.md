@@ -20,15 +20,36 @@ categories: SystemVerilog
 1. 以自上到下的方式，层级地调用各自的pre_randomize()函数.
 2. 收集并统计各层级对象的rand variable和constraint.
 3. 把简单的关于常数的constraint先解决好，比如 constraint c {a==1;}.
-4. 解决在constraint中的使用函数。具体看下面解释。
+4. 解决在constraint中的不以rand variable作为形参的函数。具体看下面解释。
 5. 根据上面的步骤结果，更新constraint中的变量值。
 6. 把剩下的变量通过各自的互相关联进行聚类和分组，比如在VCS里称作partition。
 7. 选择合适的算法引擎解决6中聚类好的变量。
-8. 以自上到下的方式，层级地调用各自的post_randomize()函数.
+8. 解决在constraint中的以rand variable作为形参的函数。具体看下面解释。
+9. 以自上到下的方式，层级地调用各自的post_randomize()函数.
 
-对于4, 在SV中，constraint中的函数的内部执行过程不会被randomize观察到，也就是说即使函数执行体用到了rand型的变量，函数执行体本身也不会参与到随机约束的过程里。函数只有输入形参和返回值对constraint-randomize可见。当函数执行时，如果用到了rand型变量，constraint-randomize过程会先把这些变量值解决掉，然后再执行函数。
-这里有两个函数形式，(a)函数没有rand变量作为形参，但在函数内部被使用。 (b)函数有rand变量作为形参。
-对于a和b，使用到的rand变量的取值没有区别，它们都通过相关联的constraint解出，然后使用。
+
+在SV中，constraint中的不使用rand variable作为形参的函数的内部执行过程不会被constraint solver观察到，只会当做普通函数执行。也就是说即使函数执行体中用到了rand variable，函数执行体本身也不会参与到随机约束的过程里，所有函数执行体中出现的rand variable都会使用randomize之前的值执行函数体。函数只有返回值对constraint solver可见。
+当函数使用rand variable作为形参时，这些rand形参会与其他的rand variable一样进行随机化。即constraint solver过程会先把这些变量值解决掉，然后再执行函数。
+也就是说同样都是函数，但执行时间不一样。比如下面的例子。
+~~~
+rand int a;
+rand int b;
+
+function int bar();
+  return b+1;
+endfunction
+
+function int foo(int a);
+  return a;
+endfunction
+
+constraint c {
+   foo(a);
+   bar();
+}
+~~~
+
+例子中bar没有rand形参，会在a和b被随机化之前被执行，由于b的默认值是0，所以bar会返回1。foo(a)用到rand形参，会在a和b随机化之后被执行。返回结果取决于a的随机化结果。
 
 
 
