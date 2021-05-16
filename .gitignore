@@ -7,6 +7,7 @@ db.json
 *.png
 *.jpg
 *.jpeg
+*.drawio
 node_modules/
 public/
 source/_drafts/
