@@ -220,17 +220,21 @@ wire可以有多驱动源，而reg/logic不可以。
 
 
 # 8. 带默认值的形参只能放在ref类型形参前吗？
-如果这样定义函数就会报错:
+如果这样定义和使用函数就会报错:
 function void foo(ref int a, int b=0);
 
-而这样就没事：
-function void foo(int b=0, ref int a);
+int x;
+foo(x);
+
+error message:
+>Illegal connection to the ref port 'b' of function/task 'foo',formal 
+>argument should have same type as actual argument.
 
 为什么？难道函数还对形参位置敏感？
-其实不是形参位置的问题，而是形参方向性的问题。共有四个形参反向input, output, inout, ref。这四个方向中只有input和inout可以进行默认赋值。一般在形参省略方向时会默认继承前一个形参的方向，若前一个形参也省略方向，则默认为为input。
-那么上面的第一个例子很显然是对ref型的值进行了默认赋值，这是不允许的。
-而第二个例子由于形参位置的调换，恰好避免了对ref的继承，所以没报错。
-要想不换第一个例子的位置，只需要对b加上input就可以了。
+这其实是形参端口类型的问题。共有四个形参端口类型input, output, inout, ref。这四个类型都可以进行默认赋值。但在SV中默认省略端口类型时，省略类型与前一个相同，若没前一个则默认为input。
+四个类型中只有input可以不进行实参传递，其他的类型本质上具有连接性，使用时必须进行实参传递。
+那么上面的例子很显然是错误地认为b会当做input类型而省略实参传递。
+解决方法: 把b也显式地进行赋值，foo(x, y);
 
 
 # 9.消失的延时赋值语句

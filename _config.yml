@@ -96,7 +96,10 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repository: https://github.com/winter-leaf/winter-leaf.github.io
+  # use usrname and password to deploy 
+  # repository: https://github.com/winter-leaf/winter-leaf.github.io
+  # use ssh key to deploy
+  repository: git@github.com:winter-leaf/winter-leaf.github.io.git
   branch: master
 
 

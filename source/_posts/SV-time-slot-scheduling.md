@@ -26,7 +26,7 @@ SV中的仿真时间会以1个step为单位进行分割。分割出来的每个�
 仿真时间片从preponed区域开始到postpone区域结束。可以对应理解为begin-end。
 对相邻两个时间片内的preponed和postpone区域而言，除仿真时间的不同外，在信号采样和变量更新操作上本质区别，两个区域可以看做相互等价。具体看下图:
 
-![sv_time](sv-time.jpeg)
+![sv_time](sv-time.jpg)
 
 
 # 3. event region
@@ -39,7 +39,7 @@ PLI指Programming Language Interface。用于除SV语言外的其他语言，如
 ## 3.2 各region作用和联系
 PLI region的用法类似callback，它并不出现在正常的仿真路径上。一般情况下会被仿真器用于记录信号/变量值来dump波形。这里不对其讨论。其他region的作用看下图:
 
-![time_slot](time_slot.jpeg)
+![time_slot](time-slot.jpg)
 
 
 
