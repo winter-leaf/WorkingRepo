@@ -30,8 +30,9 @@ $past ( expression1 [, [number_of_ticks ] [, [expression2 ] [, [clocking_event]]
 $past中的*expression2*为使能条件。
 两个采样触发点分别是:  
 1. 当前触发点即函数被调用的触发时间点。
-2. 之前采样触发点。
-之前采样触发点由可省略参数clocking_event来定义。省略时则默认和当前函数被调用时的触发点一样。
+2. 上一个采样触发点。  
+
+上一个采样触发点由可省略参数clocking_event来定义。省略时则默认和当前函数被调用时的触发点一样。
 
 例子:
 
@@ -53,7 +54,7 @@ SV支持assertion切换触发点。触发点一般为时钟沿，也可以是别
 
 ~~~verilog
 sequence 
-  @(ev_1) seq_1 ##1 @(ev_2) seq_2 ##1 @(ev_3) ...
+  @(ev_1) seq_1 ##1 @(ev_2) seq_2 ##1 @(ev_3) ...;
 endsequence
 ~~~
 
@@ -67,7 +68,7 @@ SV定义，在不加括号和没有局部新的触发条件的情况下，触发
 
 ~~~verilog
 sequence
-  @(ev_1) seq_1 ##1 @(ev_2) seq_2 ##1 @(ev_3) ...
+  @(ev_1) seq_1 ##1 @(ev_2) seq_2 ##1 @(ev_3) ...;
 endsequence
 ~~~
 
@@ -83,7 +84,9 @@ endsequence
 那么触发条件ev\_1不会影响到seq\_1内部，但还是会影响到seq_1后面的##1.
 
 ~~~verilog
-@(ev_1) seq_1 ##1  (@(ev_2) seq_2 ##1)  ##2 seq_3 ...
+sequence
+  @(ev_1) seq_1 ##1  (@(ev_2) seq_2 ##1)  ##2 seq_3 ...;
+endsequence
 ~~~
 
 这里(@(ev\_2) seq\_2 ##1)单独加上括号且有独立的触发条件，ev\_1不会影响到其内部。括号外面的还是在ev_1影响范围内。
