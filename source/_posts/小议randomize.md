@@ -78,6 +78,26 @@ constraint csrnt {
 ## 2.2 misconception that randomize a single variable would affect other variables
 这里是一个常有的误区，如果有两个有约束关联的rand型变量a和b，只随机化b，randomize(b)也可以把a随机化。
 实际情况不是这样。randomize(b)只会随机化b，否则就和randomize()没任何区别了。
+
+在SV种，obj.randomize(a,b,c) 给出形参列表时，它表示显式给出obj中要进行randomize的变量。无论是否变量被定义为rand，都会被强制作为rand。
+未被加入形参列表的强制当作状态变量state variable，不参与随机化，只会保持原值。randc变量不遵循上述规则，作为randomize()形参时和没作为没区别。
+
+除此之外，还有一个小点值得注意。定义为rand但被当做state variable的变量，虽然不会被随机化成别的值，但它仍会被放入constraint中进行校验。不在constraint范围内时仍然会报错。
+比如下面的例子，  
+
+~~~verilog
+rand int a,b;
+
+constraint csrnt {
+  a < 0;
+}
+
+assert(randomize(b));
+~~~
+
+a不会参与随机化赋值，但a仍受constraint限制。由于a的初始值为0, 不满足a<0从而报错。
+
+
 ~~~verilog
 rand logic[3:0] a,b;
 
