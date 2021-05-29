@@ -77,10 +77,10 @@ endprogram
 # 8. type(variable_name | systemverilog legal data type)操作符
 *type(variable\_name | systemverilog legal data type)* 操作符可用于类型转换和比较:  
 ~~~verilog
-   typedef enum {DOG=0, CAT=1, PIG} ani;
-   real a = 1;
-   ani b = type(b)'(a);
-   $display("b = %s", b.name()); // output is CAT
+typedef enum {DOG=0, CAT=1, PIG} ani;
+real a = 1;
+ani b = type(b)'(a);
+$display("b = %s", b.name()); // output is CAT
 
 case(type(a)) inside
   type(int):  ......
@@ -137,7 +137,7 @@ $display("p = %0p", p); // output is p = ’{15}
 
 # 13. Interface class
 ## 13.1 哪些东西可以被继承
-父类interface class中的*parameters*和 *typedef* 是可以被子接口类interface class *extends*继承的，但不能被实现类*implements*继承。  
+父类interface class中的_parameters_ 和 _typedef_ 是可以被子接口类interface class *extends*继承的，但不能被实现类*implements*继承。  
 ~~~verilog
   interface class A#(type T=int);
     typedef logic[1:0] logvec;
@@ -179,7 +179,7 @@ $display("p = %0p", p); // output is p = ’{15}
     ......
   end
 ~~~
-Iff 比or优先级高.
+iff 比 or 优先级高.
 
 
 # 17. sequence can be used as an event
