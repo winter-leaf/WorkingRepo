@@ -35,14 +35,32 @@ end
 
 要解决上面的问题，最好的方法就是把assert放在所有信号都变化完毕的posponed区域再执行。Deferred Assertion就是做这个事的。
 
-Deferred Assertion的形式是在assert后加一个"final":
-assert ***final*** (b !== a);
+Deferred Assertion的形式是在assert后加一个"final"或"#0":
+1. Observed deferred assertion: assert ***#0***    (b !== a) [action block];
+2. Final deferred assertion:    assert ***final*** (b !== a) [action block];
 
+二者的区别在于:
+Observed deferred assertion的[action block]分派在Re-active region，而Final deferred assertion的[action block]则是在postponed region.
+Final deferred assertion更加稳定。因为一个时间片中的Observed region有可能被多次执行。
+比如在program里更改了module中的某个信号值，从而导致observed region再次执行。这有可能导致Observed deferred assertion对glitch的误报。
 
 Deferred Assertion的另外一个好处是可以脱离procedural block，即不用必须放在begin-end等等过程执行的语法块里面。
 Immediate assertion是必须要放在procedural block里面的，否则会语法报错。
 
 事实上，Deferred Assertion可以完全替代Immediate assertion，而且仿真更安全稳定。
 
-# 2. 小结
+
+# 2. Deferred assertion disabling
+Deferred assertion是可以被取消的。
+~~~verilog
+always @(bad_val or bad_val_ok) begin : b1
+  a1: assert #0 (bad_val) else $fatal(1, "Sorry"); 
+  if (bad_val_ok) begin 
+    disable a1;
+  end 
+end 
+~~~
+
+
+# 3. 小结
 如果要用Immediate assertion的话，就用Deferred Assertion替代。
