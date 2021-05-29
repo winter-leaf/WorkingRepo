@@ -215,3 +215,8 @@ endmodule : tb
 这种方法可以方便地实现动态添加和删除约束，但也有一个不方便的地方。
 这种方法假设所有定义在约束对象内的约束都是相互独立的。但实际项目中，很有可能有很多的随机变量相互关联。
 那么这种方法并不能很明显地体现出优势，反而会增加分割约束的工作量。一定程度上相当于人为地替solver做了partition工作。
+
+
+# Reference
+1. systemverilog-IEEE.std.1800-2017
+2. Dickol, J. . "SystemVerilog Constraint Layering via Reusable Randomization Policy Classes. DVCon
