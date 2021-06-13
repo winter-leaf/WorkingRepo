@@ -11,7 +11,7 @@ tags: SystemVerilog
 categories: SystemVerilog
 ---
 
-clocking block是写BFM中很重要的一个环节。为此特意看了几篇文章记录一下。
+clocking block的使用总结和几篇相关文章的笔记。
 
 <!--- more --->
 
